@@ -63,6 +63,7 @@ export default function init() {
       this.emailRef = this.updateRef.bind(this, 'email');
       this.passwordRef = this.updateRef.bind(this, 'password');
       this.houseRef = this.updateRef.bind(this, 'house');
+      this.genderRef = this.updateRef.bind(this, 'gender');
 
       this.renderPasswordAccessory = this.renderPasswordAccessory.bind(this);
 
@@ -258,6 +259,20 @@ export default function init() {
                 disabled={true}
               />
             </View>
+
+            <TextField
+              ref={this.genderRef}
+              isDropdown
+              dropdownItems={[
+                { label: 'Male', value: 'male' },
+                { label: 'Female', value: 'female' },
+              ]}
+              onFocus={this.onFocus}
+              onChangeText={this.onChangeText}
+              onSubmitEditing={this.onSubmitEmail}
+              label='Gender'
+              error={errors.gender}
+            />
 
             <View style={styles.buttonContainer}>
               <RaisedTextButton

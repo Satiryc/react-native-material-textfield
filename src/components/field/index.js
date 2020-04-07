@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
 import {
+  ColorPropType,
   View,
   Text,
   TextInput,
@@ -9,6 +10,7 @@ import {
   Platform,
   ViewPropTypes,
 } from 'react-native';
+import RNPickerSelect from 'react-native-picker-select';
 
 import Line from '../line';
 import Label from '../label';
@@ -43,6 +45,7 @@ export default class TextField extends PureComponent {
     disableFullscreenUI: true,
     autoCapitalize: 'sentences',
     editable: true,
+    isDropdown: false,
 
     animationDuration: 225,
 
@@ -119,6 +122,44 @@ export default class TextField extends PureComponent {
 
     containerStyle: (ViewPropTypes || View.propTypes).style,
     inputContainerStyle: (ViewPropTypes || View.propTypes).style,
+
+    dropdownItems: PropTypes.shape({
+      label: PropTypes.string.isRequired,
+      value: PropTypes.any.isRequired,
+      key: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      color: ColorPropType,
+      displayValue: PropTypes.bool,
+    }),
+
+    dropdownProps: PropTypes.shape({
+      value: PropTypes.any,
+      placeholder: PropTypes.shape({
+        label: PropTypes.string,
+        value: PropTypes.any,
+        key: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        color: ColorPropType,
+      }),
+      disabled: PropTypes.bool,
+      itemKey: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      style: PropTypes.shape({}),
+      children: PropTypes.any,
+      placeholderTextColor: ColorPropType,
+      onOpen: PropTypes.func,
+      useNativeAndroidPickerStyle: PropTypes.bool,
+      hideDoneBar: PropTypes.bool,
+      doneText: PropTypes.string,
+      onDonePress: PropTypes.func,
+      onUpArrow: PropTypes.func,
+      onDownArrow: PropTypes.func,
+      onClose: PropTypes.func,
+      modalProps: PropTypes.shape({}),
+      textInputProps: PropTypes.shape({}),
+      pickerProps: PropTypes.shape({}),
+      touchableDoneProps: PropTypes.shape({}),
+      touchableWrapperProps: PropTypes.shape({}),
+      Icon: PropTypes.func,
+      InputAccessoryView: PropTypes.func,
+    }),
   };
 
   static inputContainerStyle = styles.inputContainer;
@@ -605,6 +646,9 @@ export default class TextField extends PureComponent {
 
   renderInput() {
     let {
+      isDropdown,
+      dropdownItems,
+      dropdownProps,
       disabled,
       editable,
       tintColor,
@@ -613,23 +657,30 @@ export default class TextField extends PureComponent {
 
     let props = this.inputProps();
     let inputStyle = this.inputStyle();
+    let textInputProps = {
+      selectionColor: tintColor,
+      ...props,
+      style: [styles.input, inputStyle, inputStyleOverrides],
+      editable: !disabled && editable,
+      onChange: this.onChange,
+      onChangeText: this.onChangeText,
+      onContentSizeChange: this.onContentSizeChange,
+      onFocus: this.onFocus,
+      onBlur: this.onBlur,
+      value: this.value(),
+      ref: this.inputRef,
+    };
 
-    return (
-      <TextInput
-        selectionColor={tintColor}
-
-        {...props}
-
-        style={[styles.input, inputStyle, inputStyleOverrides]}
-        editable={!disabled && editable}
-        onChange={this.onChange}
-        onChangeText={this.onChangeText}
-        onContentSizeChange={this.onContentSizeChange}
-        onFocus={this.onFocus}
-        onBlur={this.onBlur}
+    return isDropdown ? (
+      <RNPickerSelect
+        onValueChange={this.onChangeText}
+        items={dropdownItems}
+        textInputProps={textInputProps}
         value={this.value()}
-        ref={this.inputRef}
+        {...dropdownProps}
       />
+    ) : (
+      <TextInput {...textInputProps} />
     );
   }
 
